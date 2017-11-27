@@ -81,6 +81,7 @@ fun aStar(startBoard: List<Int>): List<List<Int>>? {
                 result.addFirst(board)
                 board = cameFrom[board]
             }
+            println("Для решения нужно ходов: " + result.size)
             return result
         }
 

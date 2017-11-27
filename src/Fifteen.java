@@ -1,19 +1,14 @@
 import javafx.geometry.*;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
-
 import java.util.*;
 
 /**
- * В методе "start" последняя строчка SolutionToScreen активирует бота,
- * если её закоммитить, то алгритм всё равно прорешает всё, но выведет результат только в консоль. Можно собрать вручную.
- *
- * При старте игры появляется окошко, где просят ввести размер. Это старое окно, оно уже не играет роли
- * Просто нажимаете "start" и всё
+ * Метод bot() активирует бота
  */
-
 
 
 class Fifteen {
@@ -40,12 +35,13 @@ class Fifteen {
         }
     }
 
+
     //перемешка
     private static void start() throws Exception {
         int counter = BOARDSIZE;
         GridPane root = getGridPane();
 
-        primaryStage.setTitle("Fifteen");
+        primaryStage.setTitle("Пятнашки с ботом");
         primaryStage.setScene(new Scene(root));
 
         //создаются кнопки
@@ -60,19 +56,36 @@ class Fifteen {
 
             }
         }
+
         primaryStage.show();
         shuffle(numForShuffle);
+
+        primaryStage.getScene().setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.R) {
+                bot();
+            }
+        });
+    }
+
+    private static void bot() {
         List<List<Integer>> a = HelpKt.aStar(actualBoard());
-        System.out.println(a);
         assert a != null;
-        System.out.println(HelpKt.roadToFinal(a));
-        solutionToScreen(HelpKt.roadToFinal(a));
+        List<Integer> n = HelpKt.roadToFinal(a);
+        System.out.println(n);
+        primaryStage.getScene().setOnKeyPressed(e -> {
+            if (n.size() != 0 && e.getCode() == KeyCode.ENTER) {
+                toMakeMove(n.get(0));
+                n.remove(0);
+            }
+        });
+
     }
 
     private static GridPane getGridPane() {
         GridPane gridPane = new GridPane();
         gridPane.setAlignment(Pos.CENTER);
         return gridPane;
+
     }
 
     private static void createButton(int i) {
@@ -96,7 +109,7 @@ class Fifteen {
 //            System.out.println(a);
 //            System.out.println(HelpKt.roadToFinal(a));
         });
-     //   buttons.get(i).setOnAction(event -> makeMove(mButtonId));
+        //   buttons.get(i).setOnAction(event -> makeMove(mButtonId));
         //buttons.get(i).setOnAction(event -> System.out.println(aStarSolution()));//solutionToScreen(getWhat()));
     }
 
@@ -112,6 +125,13 @@ class Fifteen {
         return result;
     }
 
+
+    /**
+     * Эти 2 метода(isWon и won) некорретно работают, остались от изначального кода
+     * Никак не влияют на работу бота. Отвечают лишь за вывод сообщения о победе на экран.
+     * Так как написанный мной бот всё равно решает игру и собирает всё поле, я опустил этот вывод сообщения на экран
+     **/
+
     private static boolean isWon() {
         int counter = 0;
         boolean bln = false;
@@ -121,10 +141,10 @@ class Fifteen {
                 counter++;
                 if (counter < BOARDSIZE) {
 
-                    bln = getButtonIndexByXY(GridPane.getRowIndex(buttons.get(counter)),
-                            GridPane.getColumnIndex(buttons.get(counter))) == j*mMax+i+1;
-//                    bln = GridPane.getRowIndex(buttons.get(counter)) == i
-//                            && GridPane.getColumnIndex(buttons.get(counter)) == j;
+//                    bln = getButtonIndexByXY(GridPane.getRowIndex(buttons.get(counter)),
+//                            GridPane.getColumnIndex(buttons.get(counter))) == j*mMax+i+1;
+                    bln = GridPane.getRowIndex(buttons.get(counter)) == i
+                            && GridPane.getColumnIndex(buttons.get(counter)) == j;
 
                 }
             }
@@ -135,7 +155,6 @@ class Fifteen {
         }
         return dln;
     }
-
     private static void won() {
         Stage winStage = new Stage();
         GridPane mWonPane = new GridPane();
@@ -173,23 +192,9 @@ class Fifteen {
             GridPane.setConstraints(buttons.get(BOARDSIZE), mColumn, mRow);
             GridPane.setConstraints(buttons.get(Integer.parseInt(mButtonId)), mColumn0, mRow0);
         }
-//        System.out.println("Состояние доски");
-//        System.out.println(actualBoard());
-//        System.out.println("-------------------");
-//        System.out.println("Возможные ходы");
-////        System.out.println(allMoves().toString());
-////        System.out.println("-------------------");
-//        System.out.println(HelpKt.allMoves(actualBoard()));
-//        System.out.println("-------------------");
-//        System.out.println("Кол-во неправильных клеток");
-//        System.out.println(HelpKt.howManyFalse(actualBoard()));
-//        System.out.println("сверху тестим");
-//        System.out.println(quantityNotTrueTiles());
-//        System.out.println("Алгоритм");
-//        System.out.println(HelpKt.aStar(actualBoard()));
-        if (isWon()) {
-            won();
-        }
+//        if (isWon()) {
+//            won();
+//        }
     }
 
     //добавленный метод, движение без взаимодействия с мышкой
@@ -202,9 +207,9 @@ class Fifteen {
             GridPane.setConstraints(buttons.get(BOARDSIZE), mColumn, mRow);
             GridPane.setConstraints(buttons.get((num)), mColumn0, mRow0);
         }
-        if (isWon()) {
-            won();
-        }
+//        if (isWon()) {
+//            won();
+//        }
     }
 
     //метод движения для перемешни (без победы при совпадении)
@@ -232,7 +237,7 @@ class Fifteen {
             int num = getButtonIndexByXY(mRow0, mColumn0 - 1);
             if (isTrueMove(num)) movesList.add(num);
         }
-        if (mColumn0 + 1 <= mMax-1) {
+        if (mColumn0 + 1 <= mMax - 1) {
             int num = getButtonIndexByXY(mRow0, mColumn0 + 1);
             if (isTrueMove(num)) movesList.add(num);
         }
@@ -240,7 +245,7 @@ class Fifteen {
             int num = getButtonIndexByXY(mRow0 - 1, mColumn0);
             if (isTrueMove(num)) movesList.add(num);
         }
-        if (mRow0 + 1 <= mMax-1) {
+        if (mRow0 + 1 <= mMax - 1) {
             int num = getButtonIndexByXY(mRow0 + 1, mColumn0);
             if (isTrueMove(num)) movesList.add(num);
         }
@@ -277,7 +282,7 @@ class Fifteen {
     }
 
 
-    //кодичество клеток не на своём месте, не используется
+    //кодичество клеток не на своём месте, не используется (не относится к боту)
 //    private static int quantityNotTrueTiles() {
 //        int counter = 0;
 //        int res = 0;
@@ -291,15 +296,8 @@ class Fifteen {
 //        return res;
 //    }
 
-    //применить на поле лист правильных ходов
-    private static void solutionToScreen(List<Integer> solution){
-        for (Integer aSolution : solution) {
-            toMakeMove(aSolution);
-        }
-    }
-
     static void Launch() {
-        mMax = BOARDSIZE/4;
+        mMax = BOARDSIZE / 4;
         try {
             start();
         } catch (Exception e) {
