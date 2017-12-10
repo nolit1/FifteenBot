@@ -34,13 +34,4 @@ public class Start extends Application {
         startStage.show();
 
     }
-
-//    public void getMax() {
-//        int maxSize = Integer.parseInt(sMaxSize);
-//        Fifteen.Launch();
-//    }
-
-    static void Launch() {
-        launch();
-    }
 }

@@ -15,26 +15,35 @@ class Fifteen {
     private static int mMax;
     private static HashMap<Integer, Button> buttons = new HashMap<>();
     private static Stage primaryStage = new Stage();
-    private static final int BOARDSIZE = 16;
-    private static final int numForShuffle = 40;
 
-    private Fifteen() {
-        int counter = BOARDSIZE;
-        GridPane root = getGridPane();
+    /**
+     * ROOTOFBOARDSIZE - ширина и высота поля. Можно менять, всё будет работать
+    */
+    private static final int ROOTOFBOARDSIZE = 5;
+    private static final int BOARDSIZE = ROOTOFBOARDSIZE*ROOTOFBOARDSIZE;
+    private static final int numForShuffle = 50;
 
-        //создаются кнопки
-        for (int i = 1; i < BOARDSIZE + 1; i++) {
-            createButton(i);
-        }
-
-        //заполнение поля кнопками
-        for (int i = mMax - 1; i >= 0; i--) {
-            for (int j = mMax - 1; j >= 0; j--) {
-                root.add(buttons.get(counter--), j, i);
-            }
-        }
+    public static int getROOTOFBOARDSIZE() {
+        return ROOTOFBOARDSIZE;
     }
 
+
+//    private Fifteen() {
+//        int counter = BOARDSIZE;
+//        GridPane root = getGridPane();
+//
+//        //создаются кнопки
+//        for (int i = 1; i < BOARDSIZE + 1; i++) {
+//            createButton(i);
+//        }
+//
+//        //заполнение поля кнопками
+//        for (int i = mMax - 1; i >= 0; i--) {
+//            for (int j = mMax - 1; j >= 0; j--) {
+//                root.add(buttons.get(counter--), j, i);
+//            }
+//        }
+//    }
 
     //перемешка
     private static void start() throws Exception {
@@ -69,7 +78,6 @@ class Fifteen {
 
     private static void bot() {
         List<List<Integer>> a = HelpKt.aStar(actualBoard());
-        assert a != null;
         List<Integer> n = HelpKt.roadToFinal(a);
         System.out.println(n);
         primaryStage.getScene().setOnKeyPressed(e -> {
@@ -125,52 +133,6 @@ class Fifteen {
         return result;
     }
 
-
-    /**
-     * Эти 2 метода(isWon и won) некорретно работают, остались от изначального кода
-     * Никак не влияют на работу бота. Отвечают лишь за вывод сообщения о победе на экран.
-     * Так как написанный мной бот всё равно решает игру и собирает всё поле, я опустил этот вывод сообщения на экран
-     **/
-
-    private static boolean isWon() {
-        int counter = 0;
-        boolean bln = false;
-        boolean dln = false;
-        for (int j = 0; j < mMax; j++) {
-            for (int i = 0; i < mMax; i++) {
-                counter++;
-                if (counter < BOARDSIZE) {
-
-//                    bln = getButtonIndexByXY(GridPane.getRowIndex(buttons.get(counter)),
-//                            GridPane.getColumnIndex(buttons.get(counter))) == j*mMax+i+1;
-                    bln = GridPane.getRowIndex(buttons.get(counter)) == i
-                            && GridPane.getColumnIndex(buttons.get(counter)) == j;
-
-                }
-            }
-        }
-        if (bln && GridPane.getRowIndex(buttons.get(mMax * mMax)) == mMax - 1
-                && GridPane.getColumnIndex(buttons.get(mMax * mMax)) == mMax - 1) {
-            dln = true;
-        }
-        return dln;
-    }
-    private static void won() {
-        Stage winStage = new Stage();
-        GridPane mWonPane = new GridPane();
-        mWonPane.setAlignment(Pos.CENTER);
-        Button wonBtn = new Button();
-        winStage.setTitle("You WIN!!!");
-        wonBtn.setText("Click!");
-        wonBtn.setOnAction(event -> {
-            winStage.close();
-            primaryStage.close();
-        });
-        mWonPane.add(wonBtn, 1, 1);
-        winStage.setScene(new Scene(mWonPane));
-        winStage.show();
-    }
-
     //акутальное состояние доски, получаем с "экрана" для передачи в алгоритм
     private static List<Integer> actualBoard() {
         List<Integer> out = new ArrayList<>();
@@ -192,28 +154,10 @@ class Fifteen {
             GridPane.setConstraints(buttons.get(BOARDSIZE), mColumn, mRow);
             GridPane.setConstraints(buttons.get(Integer.parseInt(mButtonId)), mColumn0, mRow0);
         }
-//        if (isWon()) {
-//            won();
-//        }
     }
 
     //добавленный метод, движение без взаимодействия с мышкой
     private static void toMakeMove(int num) {
-        int mRow0 = GridPane.getRowIndex(buttons.get(BOARDSIZE));
-        int mColumn0 = GridPane.getColumnIndex(buttons.get(BOARDSIZE));
-        int mRow = GridPane.getRowIndex(buttons.get((num)));
-        int mColumn = GridPane.getColumnIndex(buttons.get((num)));
-        if (mRow == mRow0 && (mColumn == mColumn0 + 1 || mColumn == mColumn0 - 1) || mColumn == mColumn0 && (mRow == mRow0 + 1 || mRow == mRow0 - 1)) {
-            GridPane.setConstraints(buttons.get(BOARDSIZE), mColumn, mRow);
-            GridPane.setConstraints(buttons.get((num)), mColumn0, mRow0);
-        }
-//        if (isWon()) {
-//            won();
-//        }
-    }
-
-    //метод движения для перемешни (без победы при совпадении)
-    private static void movingToShuffle(int num) {
         int mRow0 = GridPane.getRowIndex(buttons.get(BOARDSIZE));
         int mColumn0 = GridPane.getColumnIndex(buttons.get(BOARDSIZE));
         int mRow = GridPane.getRowIndex(buttons.get((num)));
@@ -277,7 +221,7 @@ class Fifteen {
         for (int i = 0; i < quantity; i++) {
             List<Integer> possible = allMoves();
             int which = possible.get((int) (Math.random() * possible.size()));
-            movingToShuffle(which);
+            toMakeMove(which);
         }
     }
 
@@ -295,9 +239,8 @@ class Fifteen {
 //        }
 //        return res;
 //    }
-
     static void Launch() {
-        mMax = BOARDSIZE / 4;
+        mMax = BOARDSIZE / getROOTOFBOARDSIZE();
         try {
             start();
         } catch (Exception e) {

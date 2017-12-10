@@ -88,7 +88,7 @@ class Tests {
         val start = intArrayOf(6, 5, 2, 3, 13, 10, 7, 4, 9, 1, 16, 8, 14, 15, 11, 12) //начальное положение
         val check = intArrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16) //с ним сравниваем (решённый)
         val b = aStar(start.toList())
-        val c = roadToFinal(b!!)
+        val c = roadToFinal(b)
         var helpMass = start.toList()
         c.asSequence().map { helpMass.indexOf(it) }.forEach { helpMass = move(helpMass.toMutableList(), it) }
         assertEquals(check.toList(), helpMass)
@@ -96,7 +96,7 @@ class Tests {
         val start2 = intArrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 11, 13, 16, 14, 12) //начальное положение
         val check2 = intArrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16) //с ним сравниваем (решённый)
         val a2 = aStar(start2.toList())
-        val c2 = roadToFinal(a2!!)
+        val c2 = roadToFinal(a2)
         var helpMass2 = start2.toList()
         c2.asSequence().map { helpMass2.indexOf(it) }.forEach { helpMass2 = move(helpMass2.toMutableList(), it) }
         assertEquals(check2.toList(), helpMass2)
